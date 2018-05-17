@@ -103,5 +103,104 @@ void my_main() {
   g.red = 0;
   g.green = 0;
   g.blue = 0;
+  double x, y, z, x1, y1, z1, r, r1, deg;
+
+//op[i].op.sphere
+  for(i = 0; i < lastop; i++) {
+    switch (op[i].opcode) {
+      case PUSH:
+        push(systems);
+        break;
+      case POP:
+        pop(systems);
+        break;
+      case MOVE:
+        x = op[i].op.move.d[0];
+        y = op[i].op.move.d[1];
+        z = op[i].op.move.d[2];
+        tmp = make_translate(x, y, z);
+        matrix_mult(peek(systems), tmp);
+        copy_matrix(tmp, peek(systems));
+        tmp->lastcol = 0;
+        break;
+      case SCALE:
+        x = op[i].op.scale.d[0];
+        y = op[i].op.scale.d[1];
+        z = op[i].op.scale.d[2];
+        tmp = make_scale(x, y, z);
+        matrix_mult(peek(systems), tmp);
+        copy_matrix(tmp, peek(systems));
+        tmp->lastcol = 0;
+        break;
+      case ROTATE:
+        deg = op[i].op.rotate.degrees * (M_PI/180);
+        if (op[i].op.rotate.axis == 0)
+          tmp = make_rotX(deg);
+        else if (op[i].op.rotate.axis == 1)
+          tmp = make_rotY(deg);
+        else
+          tmp = make_rotZ(deg);
+        matrix_mult(peek(systems), tmp);
+        copy_matrix(tmp, peek(systems));
+        tmp->lastcol = 0;
+        break;
+      case BOX:
+        x = op[i].op.box.d0[0];
+        y = op[i].op.box.d0[1];
+        z = op[i].op.box.d0[2];
+        x1 = op[i].op.box.d1[0];
+        y1 = op[i].op.box.d1[1];
+        z1 = op[i].op.box.d1[2];
+        add_box(tmp, x, y, z, x1, y1, z1);
+        matrix_mult(peek(systems), tmp);
+        draw_polygons(tmp, t, zb,
+                      view, light, ambient, areflect, dreflect, sreflect);
+        tmp->lastcol = 0;
+        break;
+      case SPHERE:
+        x = op[i].op.sphere.d[0];
+        y = op[i].op.sphere.d[1];
+        z = op[i].op.sphere.d[2];
+        r = op[i].op.sphere.r;
+        add_sphere(tmp, x, y, z, r, step_3d);
+        matrix_mult(peek(systems), tmp);
+        draw_polygons(tmp, t, zb,
+                      view, light, ambient, areflect, dreflect, sreflect);
+        tmp->lastcol = 0;
+        break;
+      case TORUS:
+        x = op[i].op.torus.d[0];
+        y = op[i].op.torus.d[1];
+        z = op[i].op.torus.d[2];
+        r = op[i].op.torus.r0;
+        r1 = op[i].op.torus.r1;
+        add_torus(tmp, x, y, z, r, r1, step_3d);
+        matrix_mult(peek(systems), tmp);
+        draw_polygons(tmp, t, zb,
+                      view, light, ambient, areflect, dreflect, sreflect);
+        tmp->lastcol = 0;
+        break;
+      case LINE:
+        x = op[i].op.line.p0[0];
+        y = op[i].op.line.p0[1];
+        z = op[i].op.line.p0[2];
+        x1 = op[i].op.line.p1[0];
+        y1 = op[i].op.line.p1[1];
+        z1 = op[i].op.line.p1[2];
+        add_edge(tmp, x, y, z,
+                 x1, y1, z1);
+        matrix_mult(peek(systems), tmp);
+        draw_lines(tmp, t, zb, g);
+        tmp->lastcol = 0;
+        break;
+      case SAVE:
+        save_extension(t, op[i].op.save.p->name);
+        break;
+      case DISPLAY:
+        display(t);
+        break;
+
+    }
+  }
 
 }

@@ -225,7 +225,7 @@ void parse_file ( char * filename,
       sscanf(line, "%lf %lf %lf",
              xvals, yvals, zvals);
       /* printf("%lf %lf %lf\n", */
-      /* 	xvals[0], yvals[0], zvals[0]); */ 
+      /* 	xvals[0], yvals[0], zvals[0]); */
       tmp = make_scale( xvals[0], yvals[0], zvals[0]);
       matrix_mult(peek(csystems), tmp);
       copy_matrix(tmp, peek(csystems));
